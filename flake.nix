@@ -1,5 +1,5 @@
 {
-  description = "Logos Blockchain Module - Qt6 Plugin";
+  description = "Logos Blockchain Module - Qt6 Plugin (portable x86-64 build: no ADX/BMI2 required)";
 
   # Pull pre-built artifacts from the self-hosted Logos Attic cache(Nix binary cache).
   nixConfig = {
@@ -10,6 +10,12 @@
   inputs = {
     logos-module-builder.url = "github:logos-co/logos-module-builder/0.3.1";
     logos-blockchain.url = "github:logos-blockchain/logos-blockchain?ref=0.3.4";
+
+    # THE ONLY FUNCTIONAL CHANGE FROM UPSTREAM 0.3.4: on x86_64-linux, link a rapidsnark built without its
+    # ADX/BMI2 assembly, so the module runs on CPUs without ADX (logos-blockchain/logos-blockchain#3743).
+    # See README.md and nix/rapidsnark-portable/flake.nix.
+    rapidsnark-portable.url = "path:./nix/rapidsnark-portable";
+    logos-blockchain.inputs.rust-rapidsnark.follows = "rapidsnark-portable";
   };
 
   outputs = inputs@{ self, logos-module-builder, ... }:
