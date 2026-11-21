@@ -27,3 +27,4 @@ doctest-local
 
 # Generated from ../flake.lock on use; a committed copy would go stale.
 mock/flake.lock
+/bench-work/

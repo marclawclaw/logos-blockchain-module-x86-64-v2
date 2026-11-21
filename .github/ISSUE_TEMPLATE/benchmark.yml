@@ -1,0 +1,34 @@
+name: Benchmark
+description: Share proving times from scripts/bench.sh on your CPU
+title: "Benchmark: <CPU model>"
+labels: [benchmark]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! Run `SAMPLES=10 scripts/bench.sh` (see the README) and paste `bench-work/report.md` below.
+  - type: textarea
+    id: report
+    attributes:
+      label: Report
+      description: The full contents of bench-work/report.md
+      render: markdown
+    validations:
+      required: true
+  - type: dropdown
+    id: idle
+    attributes:
+      label: Was the machine idle during the run?
+      options: ["Yes", "Mostly (light desktop use)", "No (other load, e.g. a running node)"]
+    validations:
+      required: true
+  - type: input
+    id: machine
+    attributes:
+      label: Machine (optional)
+      description: e.g. "ThinkPad T410", "Intel NUC DN2820FYK", "VPS, 2 vCPU"
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes (optional)
+      description: Anything else, e.g. whether the module runs a node on this machine and in which role.

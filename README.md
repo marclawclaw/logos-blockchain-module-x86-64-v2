@@ -16,6 +16,12 @@ Signal 4 is SIGILL, an illegal instruction. See
 This build fixes that, at the cost of slower proof generation (see [Drawbacks](#drawbacks)).
 **Use it only if the official module crashes on your machine.**
 
+> **Status: experimental, published mostly for the sake of it.** It is useful to run an unfunded edge node (sync,
+> relay, PoW mining) on old hardware. It is *not* a good way to run a staked block producer or a Blend core node on
+> a slow CPU, because proofs there take seconds, not milliseconds. The real fix belongs upstream (see
+> [Way forward](#way-forward)). Until then, **benchmarks from more CPUs are welcome**: see
+> [Share your benchmarks](#share-your-benchmarks).
+
 ## Do I need it?
 
 ```sh
@@ -146,6 +152,7 @@ installs them and logs a warning. Under `signature_policy: require`, it refuses 
 
   Proof verification, and therefore syncing, is much less affected than proving. On a CPU that *can* run the
   official build, this build is simply ~2.6× slower at proving, so do not use it there.
+  Two CPUs is not much data. If you have another one, [share your benchmarks](#share-your-benchmarks).
 - **Unofficial and unsigned.** It is built from upstream source by this repo's flake, but it is not released or
   signed by the Logos Blockchain team. You are trusting this repo and the catalogue's CI.
 - **Same name as the official module.** logosctl records no install source. `package upgrade`, or a plain
@@ -206,6 +213,28 @@ Related logosctl gaps worth fixing whatever the choice: `install`/`upgrade` shou
 In short: distributions ship portable binaries, and put the speed into runtime dispatch inside the few libraries
 where it matters. Level-based variants are an optimisation on top, not a correctness mechanism. That is why option 1 is
 the cleanest fix here, and why a variant mechanism (option 2) would need to be feature-based to be correct.
+
+## Share your benchmarks
+
+The numbers above come from two machines. Results from other CPUs are the most useful contribution to this repo:
+old ones (does a Haswell or Westmere desktop clear the ~1 s mark?), new ones (how big is the gap on Intel vs AMD?),
+and ARM.
+
+```sh
+git clone https://github.com/marclawclaw/logos-blockchain-module-x86-64-v2.git
+cd logos-blockchain-module-x86-64-v2
+SAMPLES=10 scripts/bench.sh          # needs nix (flakes), cargo, clang/libclang, git, curl
+```
+
+[`scripts/bench.sh`](scripts/bench.sh) fetches logos-blockchain 0.3.4 and its circuits into `./bench-work`, builds
+the portable rapidsnark with this repo's flake, and runs upstream's `prove` benches (PoL, PoQ, PoC, zksign).
+If your CPU has ADX and BMI2, it runs them with the official rapidsnark too, to measure the slowdown. The first run
+compiles for a while (about 10 min on a fast laptop, much longer on old hardware). A slow CPU takes about
+`SAMPLES × 50 s` more to run the benches, so lower `SAMPLES` there.
+
+It prints a Markdown report and saves it to `bench-work/report.md`. Please paste it into a new issue with the
+**Benchmark** template, and say whether the machine was idle. Results that come in are added to the table under
+[Drawbacks](#drawbacks).
 
 ## Build
 
